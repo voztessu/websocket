@@ -1,5 +1,5 @@
 // Import thư viện WebSocket
-const WebSocket = require('ws');
+const socket = new WebSocket('wss://test.nameck.tech/ws/');
 
 // Khởi tạo WebSocket server trên cổng 8080
 const wss = new WebSocket.Server({ port: 8080 });
@@ -25,3 +25,4 @@ wss.on('connection', (ws) => {
 });
 
 console.log('WebSocket server is running on ws://localhost:8080');
+
