@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #chat {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: scroll;
+        }
+
+        #message {
+            width: 80%;
+            padding: 10px;
+        }
+
+        #sendButton {
+            padding: 10px;
+        }
+
+        #nameInput {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>WebSocket Chat Application</h1>
+
+    <!-- Input for the user to set their name -->
+    <input type="text" id="nameInput" placeholder="Enter your name" />
+
+    <!-- Chat area where messages will appear -->
+    <div id="chat"></div>
+
+    <!-- Input for the user to type their message -->
+    <input type="text" id="message" placeholder="Type a message" disabled />
+    <button id="sendButton" disabled>Send</button>
+
+    <script>
+        // Kết nối WebSocket tới server
+        const socket = new WebSocket('ws://localhost:8080');
+
+        let userName = ''; // Variable to store the user's name
+
+        // Khi kết nối WebSocket thành công
+        socket.onopen = () => {
+            console.log('Connected to WebSocket server');
+        };
+
+        // Nhận và hiển thị tin nhắn từ server
+        socket.onmessage = (event) => {
+            const chatDiv = document.getElementById('chat');
+            const newMessage = document.createElement('div');
+            newMessage.textContent = event.data;
+            chatDiv.appendChild(newMessage);
+            chatDiv.scrollTop = chatDiv.scrollHeight; // Cuộn xuống cuối khi có tin nhắn mới
+        };
+
+        // Xử lý khi kết nối bị đóng
+        socket.onclose = () => {
+            console.log('Disconnected from WebSocket server');
+        };
+
+        // Lắng nghe khi người dùng nhập tên
+        document.getElementById('nameInput').addEventListener('input', function () {
+            userName = this.value.trim();
+
+            // Nếu tên đã được nhập, cho phép gửi tin nhắn
+            if (userName.length > 0) {
+                document.getElementById('message').disabled = false;
+                document.getElementById('sendButton').disabled = false;
+            } else {
+                document.getElementById('message').disabled = true;
+                document.getElementById('sendButton').disabled = true;
+            }
+        });
+
+        // Xử lý sự kiện nhấn nút gửi
+        document.getElementById('sendButton').onclick = () => {
+            const message = document.getElementById('message').value;
+            if (message) {
+                // Gửi tin nhắn với tên người dùng
+                socket.send(`${userName}: ${message}`);
+                document.getElementById('message').value = ''; // Xóa ô nhập
+            }
+        };
+    </script>
+</body>
+
+</html>
